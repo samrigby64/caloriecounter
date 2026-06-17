@@ -1,0 +1,52 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-bg: #0b0f0e;
+  --color-surface: #141a18;
+  --color-surface-2: #1c2421;
+  --color-border: #27302c;
+  --color-brand: #22c55e;
+  --color-brand-dim: #16a34a;
+  --color-muted: #8b958f;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: #f2f5f3;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI',
+    Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* Avoid pull-to-refresh / bounce inside the installed PWA */
+  overscroll-behavior-y: none;
+}
+
+/* Respect the iPhone notch / home indicator */
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Hide number input spinners for a cleaner look */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+button {
+  font-family: inherit;
+}
