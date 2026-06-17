@@ -167,6 +167,55 @@ export function useDeleteFavorite() {
   })
 }
 
+/* --------------------------------- Water -------------------------------- */
+
+export function useWater(date: string) {
+  const { user } = useAuth()
+  return useQuery({
+    queryKey: ['water', user?.id, date],
+    enabled: !!user,
+    queryFn: async (): Promise<number> => {
+      const { data, error } = await supabase
+        .from('water')
+        .select('glasses')
+        .eq('user_id', user!.id)
+        .eq('date', date)
+        .maybeSingle()
+      if (error) throw error
+      return data?.glasses ?? 0
+    },
+  })
+}
+
+export function useSetWater(date: string) {
+  const { user } = useAuth()
+  const qc = useQueryClient()
+  const key = ['water', user?.id, date]
+  return useMutation({
+    mutationFn: async (glasses: number) => {
+      const next = Math.max(0, glasses)
+      const { error } = await supabase
+        .from('water')
+        .upsert(
+          { user_id: user!.id, date, glasses: next },
+          { onConflict: 'user_id,date' },
+        )
+      if (error) throw error
+    },
+    // Optimistic — the glasses update instantly on tap.
+    onMutate: async (glasses) => {
+      await qc.cancelQueries({ queryKey: key })
+      const prev = qc.getQueryData<number>(key)
+      qc.setQueryData(key, Math.max(0, glasses))
+      return { prev }
+    },
+    onError: (_e, _v, ctx) => {
+      if (ctx?.prev !== undefined) qc.setQueryData(key, ctx.prev)
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: key }),
+  })
+}
+
 /* -------------------------------- Recents ------------------------------- */
 
 /** Most-recently logged foods (de-duplicated by name), for one-tap re-logging. */

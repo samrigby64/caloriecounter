@@ -9,6 +9,7 @@ const FIELDS = [
   { key: 'protein_goal', label: 'Protein', unit: 'g' },
   { key: 'carbs_goal', label: 'Carbs', unit: 'g' },
   { key: 'fat_goal', label: 'Fat', unit: 'g' },
+  { key: 'water_goal', label: 'Water', unit: 'glasses' },
 ] as const
 
 export default function Settings() {
@@ -25,6 +26,7 @@ export default function Settings() {
         protein_goal: String(profile.protein_goal),
         carbs_goal: String(profile.carbs_goal),
         fat_goal: String(profile.fat_goal),
+        water_goal: String(profile.water_goal),
       })
     }
   }, [profile])
@@ -36,6 +38,7 @@ export default function Settings() {
       protein_goal: Number(form.protein_goal) || 0,
       carbs_goal: Number(form.carbs_goal) || 0,
       fat_goal: Number(form.fat_goal) || 0,
+      water_goal: Number(form.water_goal) || 0,
     })
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
@@ -71,7 +74,7 @@ export default function Settings() {
                 }
                 className="w-20 rounded-lg bg-surface-2 px-3 py-1.5 text-right tabular-nums outline-none focus:ring-1 focus:ring-brand"
               />
-              <span className="w-8 text-xs text-muted">{f.unit}</span>
+              <span className="w-14 text-xs text-muted">{f.unit}</span>
             </span>
           </label>
         ))}

@@ -1,19 +1,37 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useDeleteEntry, useEntries, useProfile } from '../hooks/useData'
+import {
+  useDeleteEntry,
+  useEntries,
+  useProfile,
+  useSetWater,
+  useWater,
+} from '../hooks/useData'
 import { addDays, formatDayLabel, todayISO } from '../lib/date'
 import { MEALS, type Entry } from '../lib/types'
 import { MACRO_COLORS } from '../lib/macros'
 import MacroRings from '../components/MacroRings'
+import WaterCard from '../components/WaterCard'
 import Spinner from '../components/Spinner'
 
 const round = (n: number) => Math.round(n)
+
+function fullDate(iso: string): string {
+  const [y, m, d] = iso.split('-').map(Number)
+  return new Date(y, m - 1, d).toLocaleDateString('en-GB', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  })
+}
 
 export default function Today() {
   const navigate = useNavigate()
   const [date, setDate] = useState(todayISO())
   const { data: profile } = useProfile()
   const { data: entries, isLoading } = useEntries(date)
+  const { data: water = 0 } = useWater(date)
+  const setWater = useSetWater(date)
   const deleteEntry = useDeleteEntry()
 
   const goal = {
@@ -21,6 +39,7 @@ export default function Today() {
     protein: profile?.protein_goal ?? 120,
     carbs: profile?.carbs_goal ?? 230,
     fat: profile?.fat_goal ?? 65,
+    water: profile?.water_goal ?? 8,
   }
 
   const totals = useMemo(() => {
@@ -40,24 +59,27 @@ export default function Today() {
     return map
   }, [entries])
 
+  const left = Math.round(goal.cal - totals.calories)
+
   return (
-    <div className="safe-top px-4 pt-4">
+    <div className="safe-top px-4 pt-3">
       {/* Date switcher */}
       <header className="mb-4 flex items-center justify-between">
         <button
           onClick={() => setDate((d) => addDays(d, -1))}
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-surface text-muted active:scale-95"
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-surface text-lg text-muted active:scale-95"
           aria-label="Previous day"
         >
           ‹
         </button>
-        <button onClick={() => setDate(todayISO())} className="text-lg font-semibold">
-          {formatDayLabel(date)}
+        <button onClick={() => setDate(todayISO())} className="flex flex-col items-center leading-tight">
+          <span className="text-lg font-semibold">{formatDayLabel(date)}</span>
+          <span className="text-xs text-muted">{fullDate(date)}</span>
         </button>
         <button
           onClick={() => setDate((d) => addDays(d, 1))}
           disabled={date >= todayISO()}
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-surface text-muted active:scale-95 disabled:opacity-30"
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-surface text-lg text-muted active:scale-95 disabled:opacity-30"
           aria-label="Next day"
         >
           ›
@@ -65,26 +87,48 @@ export default function Today() {
       </header>
 
       {/* Summary: legend + bullseye rings */}
-      <section className="flex items-center gap-3 rounded-3xl bg-surface p-5">
-        <div className="flex-1 space-y-2.5">
-          <LegendRow label="Kcal" consumed={totals.calories} goal={goal.cal} unit="kcal" color={MACRO_COLORS.kcal} />
-          <LegendRow label="Protein" consumed={totals.protein} goal={goal.protein} unit="g" color={MACRO_COLORS.protein} />
-          <LegendRow label="Carbs" consumed={totals.carbs} goal={goal.carbs} unit="g" color={MACRO_COLORS.carbs} />
-          <LegendRow label="Fat" consumed={totals.fat} goal={goal.fat} unit="g" color={MACRO_COLORS.fat} />
+      <section className="rounded-3xl bg-surface p-5">
+        <div className="flex items-center gap-3">
+          <div className="flex-1 space-y-3">
+            <LegendRow label="Kcal" consumed={totals.calories} goal={goal.cal} unit="kcal" color={MACRO_COLORS.kcal} />
+            <LegendRow label="Protein" consumed={totals.protein} goal={goal.protein} unit="g" color={MACRO_COLORS.protein} />
+            <LegendRow label="Carbs" consumed={totals.carbs} goal={goal.carbs} unit="g" color={MACRO_COLORS.carbs} />
+            <LegendRow label="Fat" consumed={totals.fat} goal={goal.fat} unit="g" color={MACRO_COLORS.fat} />
+          </div>
+          <MacroRings
+            size={168}
+            data={{
+              kcal: { consumed: totals.calories, goal: goal.cal },
+              protein: { consumed: totals.protein, goal: goal.protein },
+              carbs: { consumed: totals.carbs, goal: goal.carbs },
+              fat: { consumed: totals.fat, goal: goal.fat },
+            }}
+          />
         </div>
-        <MacroRings
-          size={150}
-          data={{
-            kcal: { consumed: totals.calories, goal: goal.cal },
-            protein: { consumed: totals.protein, goal: goal.protein },
-            carbs: { consumed: totals.carbs, goal: goal.carbs },
-            fat: { consumed: totals.fat, goal: goal.fat },
-          }}
-        />
+        <p className="mt-4 border-t border-border pt-3 text-center text-sm text-muted">
+          {left >= 0 ? (
+            <>
+              <span className="font-semibold text-white">{left}</span> kcal left today
+            </>
+          ) : (
+            <>
+              <span className="font-semibold text-red-400">{Math.abs(left)}</span> kcal over
+            </>
+          )}
+        </p>
       </section>
 
+      {/* Water */}
+      <div className="mt-4">
+        <WaterCard
+          glasses={water}
+          goal={goal.water}
+          onChange={(n) => setWater.mutate(n)}
+        />
+      </div>
+
       {/* Meals */}
-      <section className="mt-5 space-y-4">
+      <section className="mt-4 space-y-4">
         {isLoading ? (
           <div className="flex justify-center py-10">
             <Spinner />
@@ -171,7 +215,8 @@ function LegendRow({
   color: string
 }) {
   return (
-    <div className="flex items-baseline gap-2">
+    <div className="flex items-center gap-2">
+      <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: color }} />
       <span className="w-14 shrink-0 text-sm text-white/90">{label}</span>
       <span className="text-sm font-semibold tabular-nums" style={{ color }}>
         {round(consumed)}/{goal}

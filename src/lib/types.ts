@@ -48,7 +48,12 @@ export interface Profile {
   protein_goal: number
   carbs_goal: number
   fat_goal: number
+  /** Daily water target, in glasses (250 ml each). */
+  water_goal: number
 }
+
+/** Millilitres in one glass of water. */
+export const GLASS_ML = 250
 
 /** Normalised nutrition for a single serving — the shape the Add flow produces. */
 export interface FoodDraft {
@@ -66,4 +71,5 @@ export const DEFAULT_PROFILE: Omit<Profile, 'id'> = {
   protein_goal: 120,
   carbs_goal: 230,
   fat_goal: 65,
+  water_goal: 8,
 }
