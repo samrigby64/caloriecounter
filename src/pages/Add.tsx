@@ -14,6 +14,7 @@ import {
 } from '../hooks/useData'
 import type { FoodDraft, MealType } from '../lib/types'
 import { todayISO } from '../lib/date'
+import { haptic } from '../lib/haptics'
 import AddFoodSheet from '../components/AddFoodSheet'
 import Spinner from '../components/Spinner'
 
@@ -38,6 +39,7 @@ export default function Add() {
   const [hit, setHit] = useState<FoodHit | null>(null)
 
   async function logFood(food: FoodDraft, alsoFavorite = false) {
+    haptic()
     await addEntry.mutateAsync({ date, meal, food })
     if (alsoFavorite) await addFavorite.mutateAsync(food)
     navigate('/')

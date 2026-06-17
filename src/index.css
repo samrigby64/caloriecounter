@@ -53,3 +53,39 @@ input[type='number']::-webkit-outer-spin-button {
 button {
   font-family: inherit;
 }
+
+/* Gentle "breathing" pulse for a completed Activity ring */
+@keyframes ringBreathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.78;
+  }
+}
+.ring-complete {
+  animation: ringBreathe 2.4s ease-in-out infinite;
+}
+
+/* Pop-in for cards/sections on first paint */
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.pop-in {
+  animation: popIn 0.35s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ring-complete,
+  .pop-in {
+    animation: none;
+  }
+}

@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { MACRO_COLORS } from '../lib/macros'
 
 interface RingDatum {
@@ -13,11 +14,21 @@ interface Props {
     fat: RingDatum
   }
   size?: number
+  /** Animate the rings filling from empty on mount (use on the main view). */
+  animate?: boolean
 }
 
 /** Concentric "bullseye" rings — one per macro. Outer→inner:
- *  calories, protein, carbs, fat. Each fills consumed/goal. */
-export default function MacroRings({ data, size = 160 }: Props) {
+ *  calories, protein, carbs, fat. Each fills consumed/goal, glows in its
+ *  colour, and breathes gently once complete. */
+export default function MacroRings({ data, size = 160, animate = false }: Props) {
+  const [shown, setShown] = useState(!animate)
+  useEffect(() => {
+    if (!animate) return
+    const id = requestAnimationFrame(() => setShown(true))
+    return () => cancelAnimationFrame(id)
+  }, [animate])
+
   const VB = 220
   const c = VB / 2
   const sw = 18
@@ -41,6 +52,8 @@ export default function MacroRings({ data, size = 160 }: Props) {
         {rings.map((ring) => {
           const circ = 2 * Math.PI * ring.r
           const pct = ring.goal > 0 ? Math.min(ring.consumed / ring.goal, 1) : 0
+          const complete = pct >= 0.999
+          const eff = shown ? pct : 0
           return (
             <g key={ring.color}>
               <circle
@@ -61,11 +74,14 @@ export default function MacroRings({ data, size = 160 }: Props) {
                 strokeWidth={sw}
                 strokeLinecap="round"
                 strokeDasharray={circ}
-                strokeDashoffset={circ * (1 - pct)}
+                strokeDashoffset={circ * (1 - eff)}
+                className={complete ? 'ring-complete' : undefined}
                 style={{
-                  // Soft glow so the colours read like Apple Activity rings.
-                  filter: `drop-shadow(0 0 3px ${ring.color}cc)`,
-                  transition: 'stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+                  // Stronger glow once the ring closes — like Apple Activity rings.
+                  filter: `drop-shadow(0 0 ${complete ? 6 : 3}px ${ring.color}${
+                    complete ? 'ee' : 'cc'
+                  })`,
+                  transition: 'stroke-dashoffset 0.7s cubic-bezier(0.34, 1.2, 0.64, 1)',
                 }}
               />
             </g>

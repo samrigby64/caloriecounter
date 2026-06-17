@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
   useDeleteEntry,
   useEntries,
@@ -10,6 +10,7 @@ import {
 import { addDays, formatDayLabel, todayISO } from '../lib/date'
 import { MEALS, type Entry } from '../lib/types'
 import { MACRO_COLORS } from '../lib/macros'
+import { haptic } from '../lib/haptics'
 import MacroRings from '../components/MacroRings'
 import WaterCard from '../components/WaterCard'
 import Spinner from '../components/Spinner'
@@ -27,7 +28,9 @@ function fullDate(iso: string): string {
 
 export default function Today() {
   const navigate = useNavigate()
-  const [date, setDate] = useState(todayISO())
+  const [params] = useSearchParams()
+  // Opened from the history calendar with ?date=… , otherwise today.
+  const [date, setDate] = useState(params.get('date') || todayISO())
   const { data: profile } = useProfile()
   const { data: entries, isLoading } = useEntries(date)
   const { data: water = 0 } = useWater(date)
@@ -105,6 +108,7 @@ export default function Today() {
           </div>
           <MacroRings
             size={168}
+            animate
             data={{
               kcal: { consumed: totals.calories, goal: goal.cal },
               protein: { consumed: totals.protein, goal: goal.protein },
@@ -183,7 +187,10 @@ export default function Today() {
                         <span className="w-12 text-right tabular-nums text-white/80">{round(e.carbs)}g</span>
                         <span className="w-12 text-right tabular-nums text-white/80">{round(e.fat)}g</span>
                         <button
-                          onClick={() => deleteEntry.mutate(e)}
+                          onClick={() => {
+                            haptic()
+                            deleteEntry.mutate(e)
+                          }}
                           className="w-4 shrink-0 text-muted active:text-red-400"
                           aria-label={`Remove ${e.name}`}
                         >

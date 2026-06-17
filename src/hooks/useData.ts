@@ -167,6 +167,88 @@ export function useDeleteFavorite() {
   })
 }
 
+/* ----------------------------- Range / history -------------------------- */
+
+export interface DayTotals {
+  date: string
+  calories: number
+  protein: number
+  carbs: number
+  fat: number
+}
+
+/** Per-day macro totals between two ISO dates (inclusive), for the history
+ *  calendar and streak. */
+export function useRangeTotals(start: string, end: string) {
+  const { user } = useAuth()
+  return useQuery({
+    queryKey: ['range-totals', user?.id, start, end],
+    enabled: !!user,
+    queryFn: async (): Promise<Record<string, DayTotals>> => {
+      const { data, error } = await supabase
+        .from('entries')
+        .select('date, calories, protein, carbs, fat')
+        .eq('user_id', user!.id)
+        .gte('date', start)
+        .lte('date', end)
+      if (error) throw error
+      const map: Record<string, DayTotals> = {}
+      for (const r of data ?? []) {
+        const d = (map[r.date] ??= {
+          date: r.date,
+          calories: 0,
+          protein: 0,
+          carbs: 0,
+          fat: 0,
+        })
+        d.calories += r.calories
+        d.protein += r.protein
+        d.carbs += r.carbs
+        d.fat += r.fat
+      }
+      return map
+    },
+  })
+}
+
+/* --------------------------------- Weight ------------------------------- */
+
+export interface WeightPoint {
+  date: string
+  weight: number
+}
+
+export function useWeights() {
+  const { user } = useAuth()
+  return useQuery({
+    queryKey: ['weights', user?.id],
+    enabled: !!user,
+    queryFn: async (): Promise<WeightPoint[]> => {
+      const { data, error } = await supabase
+        .from('weights')
+        .select('date, weight')
+        .eq('user_id', user!.id)
+        .order('date', { ascending: true })
+      if (error) throw error
+      return (data ?? []) as WeightPoint[]
+    },
+  })
+}
+
+export function useLogWeight() {
+  const { user } = useAuth()
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ date, weight }: { date: string; weight: number }) => {
+      const { error } = await supabase
+        .from('weights')
+        .upsert({ user_id: user!.id, date, weight }, { onConflict: 'user_id,date' })
+      if (error) throw error
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['weights', user?.id] }),
+  })
+}
+
 /* --------------------------------- Water -------------------------------- */
 
 export function useWater(date: string) {

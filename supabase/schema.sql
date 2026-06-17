@@ -62,12 +62,22 @@ create table if not exists public.water (
   primary key (user_id, date)
 );
 
+-- ─────────────────────────────── weights ─────────────────────────────
+-- One body-weight reading per user per day (kg).
+create table if not exists public.weights (
+  user_id     uuid not null references auth.users (id) on delete cascade,
+  date        date not null,
+  weight      numeric not null,
+  primary key (user_id, date)
+);
+
 -- ──────────────────────── Row Level Security ─────────────────────────
 -- Each user can only ever see and modify their own rows.
 alter table public.profiles  enable row level security;
 alter table public.entries   enable row level security;
 alter table public.favorites enable row level security;
 alter table public.water     enable row level security;
+alter table public.weights   enable row level security;
 
 do $$
 begin
@@ -92,6 +102,12 @@ begin
   -- water
   if not exists (select 1 from pg_policies where tablename = 'water' and policyname = 'own water') then
     create policy "own water" on public.water
+      for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+  end if;
+
+  -- weights
+  if not exists (select 1 from pg_policies where tablename = 'weights' and policyname = 'own weights') then
+    create policy "own weights" on public.weights
       for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
   end if;
 end $$;

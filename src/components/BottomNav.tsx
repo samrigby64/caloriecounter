@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom'
 
 const items = [
   { to: '/', label: 'Today', icon: HomeIcon },
+  { to: '/progress', label: 'Progress', icon: ChartIcon },
   { to: '/add', label: 'Add', icon: PlusIcon },
   { to: '/settings', label: 'Goals', icon: TargetIcon },
 ]
@@ -52,6 +53,20 @@ function PlusIcon() {
         stroke="currentColor"
         strokeWidth="1.8"
         strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
+function ChartIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M4 20V10M10 20V4M16 20v-7M22 20H2"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   )

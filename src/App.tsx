@@ -7,6 +7,7 @@ import Spinner from './components/Spinner'
 import Login from './pages/Login'
 import Today from './pages/Today'
 import Add from './pages/Add'
+import Progress from './pages/Progress'
 import Settings from './pages/Settings'
 
 export default function App() {
@@ -29,6 +30,7 @@ export default function App() {
       <main className="flex-1 overflow-y-auto pb-24">
         <Routes>
           <Route path="/" element={<Today />} />
+          <Route path="/progress" element={<Progress />} />
           <Route path="/add" element={<Add />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,5 +1,6 @@
 import { GLASS_ML } from '../lib/types'
 import { WATER_COLOR as WATER } from '../lib/macros'
+import { haptic } from '../lib/haptics'
 
 const MAX_DROPS = 14
 
@@ -17,6 +18,7 @@ export default function WaterCard({ glasses, goal, onChange }: Props) {
   const goalLitres = ((goal * GLASS_ML) / 1000).toFixed(1)
 
   function tap(i: number) {
+    haptic()
     // Tapping the currently-last-full glass clears it; otherwise fill up to i.
     onChange(glasses === i + 1 ? i : i + 1)
   }
