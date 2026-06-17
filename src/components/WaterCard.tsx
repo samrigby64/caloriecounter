@@ -1,6 +1,6 @@
 import { GLASS_ML } from '../lib/types'
+import { WATER_COLOR as WATER } from '../lib/macros'
 
-const WATER = '#38bdf8'
 const MAX_DROPS = 14
 
 interface Props {
@@ -22,7 +22,7 @@ export default function WaterCard({ glasses, goal, onChange }: Props) {
   }
 
   return (
-    <div className="rounded-2xl bg-surface p-4">
+    <div className="rounded-3xl border border-white/[0.06] bg-surface p-5">
       <div className="mb-3 flex items-baseline justify-between">
         <h2 className="font-semibold">Water</h2>
         <span className="text-sm tabular-nums" style={{ color: WATER }}>
@@ -55,7 +55,14 @@ export default function WaterCard({ glasses, goal, onChange }: Props) {
 
 function Drop({ filled }: { filled: boolean }) {
   return (
-    <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden>
+    <svg
+      width="26"
+      height="26"
+      viewBox="0 0 24 24"
+      aria-hidden
+      className="overflow-visible"
+      style={filled ? { filter: `drop-shadow(0 0 3px ${WATER}cc)` } : undefined}
+    >
       <path
         d="M12 3c3.6 4.2 6 7.2 6 10.2A6 6 0 0 1 6 13.2C6 10.2 8.4 7.2 12 3z"
         fill={filled ? WATER : 'transparent'}

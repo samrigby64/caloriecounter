@@ -1,13 +1,15 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-bg: #0b0f0e;
-  --color-surface: #141a18;
-  --color-surface-2: #1c2421;
-  --color-border: #27302c;
-  --color-brand: #22c55e;
-  --color-brand-dim: #16a34a;
-  --color-muted: #8b958f;
+  /* True-black OLED base with iOS-style elevated greys */
+  --color-bg: #000000;
+  --color-surface: #1c1c1e;
+  --color-surface-2: #2c2c2e;
+  --color-border: rgba(255, 255, 255, 0.1);
+  /* iOS dark-mode system colours */
+  --color-brand: #30d158;
+  --color-brand-dim: #28b94c;
+  --color-muted: #8e8e93;
 }
 
 :root {
@@ -23,7 +25,8 @@ body,
 body {
   margin: 0;
   background: var(--color-bg);
-  color: #f2f5f3;
+  color: #f5f5f7;
+  letter-spacing: -0.01em;
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI',
     Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

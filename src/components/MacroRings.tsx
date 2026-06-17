@@ -35,7 +35,7 @@ export default function MacroRings({ data, size = 160 }: Props) {
       height={size}
       viewBox={`0 0 ${VB} ${VB}`}
       aria-hidden
-      className="shrink-0"
+      className="shrink-0 overflow-visible"
     >
       <g transform={`rotate(-90 ${c} ${c})`}>
         {rings.map((ring) => {
@@ -62,7 +62,11 @@ export default function MacroRings({ data, size = 160 }: Props) {
                 strokeLinecap="round"
                 strokeDasharray={circ}
                 strokeDashoffset={circ * (1 - pct)}
-                style={{ transition: 'stroke-dashoffset 0.5s ease' }}
+                style={{
+                  // Soft glow so the colours read like Apple Activity rings.
+                  filter: `drop-shadow(0 0 3px ${ring.color}cc)`,
+                  transition: 'stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+                }}
               />
             </g>
           )

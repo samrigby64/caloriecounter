@@ -63,31 +63,39 @@ export default function Today() {
 
   return (
     <div className="safe-top px-4 pt-3">
-      {/* Date switcher */}
-      <header className="mb-4 flex items-center justify-between">
+      {/* Large title + day navigation */}
+      <header className="mb-5 flex items-end justify-between">
         <button
-          onClick={() => setDate((d) => addDays(d, -1))}
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-surface text-lg text-muted active:scale-95"
-          aria-label="Previous day"
+          onClick={() => setDate(todayISO())}
+          className="text-left active:opacity-60"
+          aria-label="Jump to today"
         >
-          ‹
+          <h1 className="text-[30px] font-bold leading-none tracking-tight">
+            {formatDayLabel(date)}
+          </h1>
+          <p className="mt-1.5 text-sm text-muted">{fullDate(date)}</p>
         </button>
-        <button onClick={() => setDate(todayISO())} className="flex flex-col items-center leading-tight">
-          <span className="text-lg font-semibold">{formatDayLabel(date)}</span>
-          <span className="text-xs text-muted">{fullDate(date)}</span>
-        </button>
-        <button
-          onClick={() => setDate((d) => addDays(d, 1))}
-          disabled={date >= todayISO()}
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-surface text-lg text-muted active:scale-95 disabled:opacity-30"
-          aria-label="Next day"
-        >
-          ›
-        </button>
+        <div className="flex items-center gap-2 pb-1">
+          <button
+            onClick={() => setDate((d) => addDays(d, -1))}
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-surface text-lg text-muted active:scale-90"
+            aria-label="Previous day"
+          >
+            ‹
+          </button>
+          <button
+            onClick={() => setDate((d) => addDays(d, 1))}
+            disabled={date >= todayISO()}
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-surface text-lg text-muted active:scale-90 disabled:opacity-30"
+            aria-label="Next day"
+          >
+            ›
+          </button>
+        </div>
       </header>
 
       {/* Summary: legend + bullseye rings */}
-      <section className="rounded-3xl bg-surface p-5">
+      <section className="rounded-3xl border border-white/[0.06] bg-surface p-5">
         <div className="flex items-center gap-3">
           <div className="flex-1 space-y-3">
             <LegendRow label="Kcal" consumed={totals.calories} goal={goal.cal} unit="kcal" color={MACRO_COLORS.kcal} />
@@ -146,7 +154,7 @@ export default function Today() {
               { cal: 0, protein: 0, carbs: 0, fat: 0 },
             )
             return (
-              <div key={key} className="rounded-2xl bg-surface p-4">
+              <div key={key} className="rounded-3xl border border-white/[0.06] bg-surface p-4">
                 <h2 className="mb-2 font-semibold">{label}</h2>
 
                 {/* Column totals header */}
